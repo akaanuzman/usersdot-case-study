@@ -1,25 +1,32 @@
 import React, { useState, useEffect } from 'react';
-import { Table, Input, Button, Modal, Tooltip, Space, Tag, Row, Col } from 'antd';
+import { Table, Input, Button, Modal, Tooltip, Tag, Row, Col, Typography, Select } from 'antd';
 import { EditOutlined, DeleteOutlined, UserAddOutlined } from '@ant-design/icons';
 
+const { Option } = Select;
+
 const App = () => {
-  const [data, setData] = useState([]);
+  const [users, setUsers] = useState([]);
+  const [totalPages, setTotalPages] = useState(0);
+  const [totalCount, setTotalCount] = useState(0);
   const [searchTerm, setSearchTerm] = useState('');
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [currentPage, pageSize]);
 
   const fetchData = async () => {
     try {
-      const response = await fetch('http://localhost:3001/users');
+      const response = await fetch(`http://localhost:3001/users?page=${currentPage}&pageSize=${pageSize}`);
       if (!response.ok) {
         throw new Error(`status: ${response.status}`);
       }
       const result = await response.json();
-      console.log(result);
-      setData(result.users);
+      setUsers(result.users);
+      setTotalPages(result.totalPages);
+      setTotalCount(result.totalCount);
     } catch (error) {
       console.error("Fetch error:", error);
     }
@@ -37,10 +44,19 @@ const App = () => {
     setIsModalVisible(false);
   };
 
+  const handleTableChange = (pagination) => {
+    setCurrentPage(pagination.current);
+  };
+
+  const handlePageSizeChange = (value) => {
+    setPageSize(value);
+    setCurrentPage(1);
+  };
+
   return (
-    <div style={{padding: '20px'}}>
+    <div style={{ padding: '20px' }}>
       <Table
-        dataSource={data}
+        dataSource={users}
         columns={[
           { title: 'Name', dataIndex: 'name', key: 'name' },
           { title: 'Surname', dataIndex: 'surname', key: 'surname' },
@@ -85,26 +101,50 @@ const App = () => {
           },
         ]}
         bordered
+        pagination={{
+          current: currentPage,
+          total: totalCount,
+          pageSize: pageSize,
+          onChange: (page) => setCurrentPage(page),
+        }}
+        onChange={handleTableChange}
         title={() =>
           <div>
-            <Row justify="space-between" align="middle">
-              <Col>
-                <Input
-                  placeholder="Search Users"
-                  onChange={(e) => handleSearch(e.target.value)}
-                />
-              </Col>
-              <Col>
-                <Button
-                  type="primary"
-                  icon={<UserAddOutlined />}
-                  onClick={() => openModal(null)}>
-                  Add User
-                </Button>
-              </Col>
-            </Row>
+            <Col>
+              <Typography.Title>Usersdot Study Case</Typography.Title>
+              <Row justify="space-between" align="middle">
+                <Col>
+                  <Input
+                    placeholder="Search Users"
+                    onChange={(e) => handleSearch(e.target.value)}
+                  />
+                </Col>
+                <Col>
+                  <Button
+                    type="primary"
+                    icon={<UserAddOutlined />}
+                    onClick={() => openModal(null)}>
+                    Add User
+                  </Button>
+                </Col>
+              </Row>
+            </Col>
           </div>}
-        footer={() => <div>Page and Pagesize selection field will be coming</div>}
+        footer={() => (
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <Typography.Text> Showing {users.length} of {totalCount} entries</Typography.Text>
+            <Select defaultValue={10} onChange={handlePageSizeChange} style={{ width: 120 }}>
+              <Option value={2}>2 / page</Option>
+              <Option value={5}>5 / page</Option>
+              <Option value={10}>10 / page</Option>
+              <Option value={15}>15 / page</Option>
+              <Option value={20}>20 / page</Option>
+              <Option value={25}>25 / page</Option>
+              <Option value={50}>50 / page</Option>
+              <Option value={100}>100 / page</Option>
+            </Select>
+          </div>
+        )}
       />
       <Modal
         title={"Add User"}

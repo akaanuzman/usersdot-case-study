@@ -66,7 +66,8 @@ export class DatabaseService implements OnModuleInit {
      */
     private async clearMockData(): Promise<void> {
         await this.connection.query('DELETE FROM User');
-        console.log('Users table cleared');
+        await this.connection.query('ALTER TABLE User AUTO_INCREMENT = 1');
+        console.log('Users table cleared and AUTO_INCREMENT reset to 1');
     }
 
     /**

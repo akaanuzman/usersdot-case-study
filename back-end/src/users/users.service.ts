@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { DatabaseService } from '../database/database.service';
-import { CreateUserDTO } from 'src/dto/create-user.dto';
-import { UpdateUserDTO } from 'src/dto/update-user.dto';
+import { CreateUserDTO } from 'src/users/dto/create-user.dto';
+import { UpdateUserDTO } from 'src/users/dto/update-user.dto';
 import { HashHelper } from 'src/helpers/hash.helper';
 
 @Injectable()

@@ -1,7 +1,8 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { DatabaseService } from '../database/database.service';
 import { CreateUserDTO } from 'src/dto/create-user.dto';
 import * as bcrypt from 'bcrypt';
+import { UpdateUserDTO } from 'src/dto/update-user.dto';
 
 @Injectable()
 export class UsersService {
@@ -50,9 +51,9 @@ export class UsersService {
     }
 
     /**
-     * 
-     * @param CreateUserDTO - user data from the request body
-     * @returns {Promise<any>} - user object
+     * @description Create a new user to the database
+     * @param createUserDTO - user data from the request body
+     * @returns {Promise<any>} - user object if created successfully or throws an error
      */
     async saveUser(createUserDTO: CreateUserDTO): Promise<any> {
         const hashedPassword = await bcrypt.hash(createUserDTO.password, 10);
@@ -72,11 +73,41 @@ export class UsersService {
         try {
             const result: any = await this.databaseService.connection.query(query, params);
             if (result[0].affectedRows === 0) {
-                throw new BadRequestException('User could not be saved');
+                throw new BadRequestException('User could not be created');
             }
-            return { id: result.insertId, ...CreateUserDTO };
+            const createdUser = await this.getUserById(result[0].insertId);
+            return createdUser;
         } catch (error) {
             throw new BadRequestException('An error occurred while creating a user:' + error.message);
-        } 
+        }
+    }
+
+    /**
+     * @description Update a user in the database
+     * @param updateUserDTO - user data from the request body
+     * @returns - user object if updated successfully or throws an error
+     */
+    async updateUser(updateUserDTO: UpdateUserDTO): Promise<any> {
+        const { id, password, ...updateFields } = updateUserDTO;
+
+        // if password is provided, hash it
+        if (password) {
+            const hashedPassword = await bcrypt.hash(password, 10);
+            updateFields['password'] = hashedPassword;
+        }
+
+        const query = `UPDATE User SET ? WHERE id = ?`;
+        const params = [updateFields, id];
+
+        try {
+            const result: any = await this.databaseService.connection.query(query, params);
+            if (result[0].affectedRows === 0) {
+                throw new NotFoundException('User not found');
+            }
+            const updatedUser = await this.getUserById(id);
+            return updatedUser;
+        } catch (error) {
+            throw new BadRequestException('User could be not updated' + error.message);
+        }
     }
 }

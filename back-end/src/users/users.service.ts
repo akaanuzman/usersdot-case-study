@@ -1,8 +1,8 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { DatabaseService } from '../database/database.service';
-import { CreateUserDTO } from 'src/dto/create-user.dto';
-import * as bcrypt from 'bcrypt';
-import { UpdateUserDTO } from 'src/dto/update-user.dto';
+import { CreateUserDTO } from 'src/users/dto/create-user.dto';
+import { UpdateUserDTO } from 'src/users/dto/update-user.dto';
+import { HashHelper } from 'src/helpers/hash.helper';
 
 @Injectable()
 export class UsersService {
@@ -56,7 +56,7 @@ export class UsersService {
      * @returns {Promise<any>} - user object if created successfully or throws an error
      */
     async saveUser(createUserDTO: CreateUserDTO): Promise<any> {
-        const hashedPassword = await bcrypt.hash(createUserDTO.password, 10);
+        const hashedPassword = await HashHelper.hashPassword(createUserDTO.password);
         const query = 'INSERT INTO User (name, surname, email, password, phone, age, country, district, role) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)';
         const params = [
             createUserDTO.name,
@@ -92,7 +92,7 @@ export class UsersService {
 
         // if password is provided, hash it
         if (password) {
-            const hashedPassword = await bcrypt.hash(password, 10);
+            const hashedPassword = await HashHelper.hashPassword(password);
             updateFields['password'] = hashedPassword;
         }
 
@@ -122,10 +122,10 @@ export class UsersService {
             const result: any = await this.databaseService.connection.query('DELETE FROM User WHERE id = ?', [id]);
             
             if (result[0].affectedRows === 0) {
-                return false;  // Kullanıcı bulunamadı
+                return false;  // user not found
             }
 
-            // AUTO_INCREMENT'i sıfırla (sadece kullanıcı tablosu boşsa)
+            // reset auto increment to avoid gaps
             const [countResult] = await this.databaseService.connection.query('SELECT COUNT(*) AS count FROM User');
             const count = countResult[0].count;
 

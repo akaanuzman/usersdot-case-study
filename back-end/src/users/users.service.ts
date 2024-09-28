@@ -110,4 +110,32 @@ export class UsersService {
             throw new BadRequestException('User could be not updated' + error.message);
         }
     }
+
+    /**
+     * @description Delete a user from the database
+     * @param id - user id
+     * @returns - true if user is deleted successfully, false if user is not found
+     */
+    async deleteUser(id: number): Promise<boolean> {
+        try {
+            // delete user from the database
+            const result: any = await this.databaseService.connection.query('DELETE FROM User WHERE id = ?', [id]);
+            
+            if (result[0].affectedRows === 0) {
+                return false;  // Kullanıcı bulunamadı
+            }
+
+            // AUTO_INCREMENT'i sıfırla (sadece kullanıcı tablosu boşsa)
+            const [countResult] = await this.databaseService.connection.query('SELECT COUNT(*) AS count FROM User');
+            const count = countResult[0].count;
+
+            if (count === 0) {
+                await this.databaseService.connection.query('ALTER TABLE User AUTO_INCREMENT = 1');
+            }
+
+            return true;
+        } catch (error) {
+            throw new BadRequestException('User could be not deleted: ' + error.message);
+        }
+    }
 }

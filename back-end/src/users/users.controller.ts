@@ -1,5 +1,6 @@
-import { Controller, Get, NotFoundException, Param, Query } from '@nestjs/common';
+import { Body, Controller, Get, NotFoundException, Param, Post, Query } from '@nestjs/common';
 import { UsersService } from './users.service';
+import { CreateUserDTO } from 'src/dto/create-user.dto';
 
 @Controller('users')
 export class UsersController {
@@ -21,5 +22,10 @@ export class UsersController {
             throw new NotFoundException(`User with ID ${id} not found`);
         }
         return user;
+    }
+
+    @Post('save')
+    async saveUser(@Body() createUserDTO: CreateUserDTO) {
+        return await this.UsersService.saveUser(createUserDTO);
     }
 }

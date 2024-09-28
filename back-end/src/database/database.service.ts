@@ -1,6 +1,7 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import * as mysql from 'mysql2/promise';
 import DatabaseConfig from './database.config';
+import { HashHelper } from 'src/helpers/hash.helper';
 
 @Injectable()
 export class DatabaseService implements OnModuleInit {
@@ -100,6 +101,8 @@ export class DatabaseService implements OnModuleInit {
         ];
 
         for (const user of mockUsers) {
+            const hashedPassword = await HashHelper.hashPassword(user.password);
+            user.password = hashedPassword;
             await this.connection.query('INSERT INTO User SET ?', user);
         }
         console.log('Mock data inserted');

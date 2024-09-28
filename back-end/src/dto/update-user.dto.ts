@@ -1,3 +1,5 @@
+import { IsNotEmpty } from 'class-validator';
+
 /**
  * @description UpdateUserDTO is a Data Transfer Object that is used to update a user.
  */
@@ -5,6 +7,7 @@ export class UpdateUserDTO {
     /**
      * @description User's id required for update
      */
+    @IsNotEmpty()
     id: number;
 
     /**
@@ -47,7 +50,7 @@ export class UpdateUserDTO {
      * @description User's district optional because it is not required for update
      */
     district?: string;
-    
+
     /**
      * @description User's role optional because it is not required for update
      */

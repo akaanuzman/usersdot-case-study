@@ -9,17 +9,17 @@ import TableActionButtonWithTooltip from '../button/TableActionButtonWithTooltip
  * @component
  * @example
  * return (
- *   <TableActions />
+ *   <TableActions onEdit={() => {}} />
  * )
  */
-const TableActions = () => {
+const TableActions = ({ onEdit }) => {
     return (
         <Space size="middle">
             <TableActionButtonWithTooltip
                 title="Edit"
                 buttonType="primary"
                 icon={<EditOutlined />}
-                onClick={() => { }}
+                onClick={onEdit}
             />
             <TableActionButtonWithTooltip
                 title="Delete"

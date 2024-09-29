@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Table, Modal, Empty } from 'antd';
+import { Table, Empty } from 'antd';
 import UserModel from './models/user.model';
 import TableFooter from './components/footer/TableFooter';
 import TableHeader from './components/header/TableHeader';
 import TableActions from './components/actions/TableActions';
 import UserRoleTag from './components/tag/UserRoleTag';
+import UserModal from './components/modal/UserModal';
 
 const App = () => {
   const [users, setUsers] = useState([]);
@@ -13,12 +14,8 @@ const App = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
+  const [selectedUserId, setSelectedUserId] = useState(null);
 
-  /**
-   * @description Fetch users from API
-   * @returns {Promise<void>}
-   * @throws {Error}
-   */
   const fetchUsers = useCallback(async () => {
     try {
       const response = await fetch(`http://localhost:3001/users?page=${currentPage}&pageSize=${pageSize}&search=${searchTerm}`);
@@ -57,12 +54,19 @@ const App = () => {
     await fetchUsers();
   };
 
-  const openModal = (record) => {
+  const openModal = (userId = null) => {
+    setSelectedUserId(userId);
     setIsModalVisible(true);
   };
 
-  const handleOk = () => {
+  const handleModalClose = () => {
     setIsModalVisible(false);
+    setSelectedUserId(null);
+  };
+
+  const handleModalSubmit = (values) => {
+    console.log('Form values:', values);
+    // Handle form submission logic here
   };
 
   const handleTableChange = (pagination) => {
@@ -101,7 +105,7 @@ const App = () => {
             title: 'Actions',
             dataIndex: 'id',
             key: 'id',
-            render: (_) => (<TableActions />),
+            render: (id) => (<TableActions onEdit={() => openModal(id)} />),
           },
         ]}
         bordered
@@ -115,7 +119,7 @@ const App = () => {
         title={() => (
           <TableHeader
             handleSearch={handleSearch}
-            openModal={openModal}
+            openModal={() => openModal()}
           />
         )}
         footer={() => (
@@ -126,13 +130,12 @@ const App = () => {
           />
         )}
       />
-      <Modal
-        title={"Add User"}
-        open={isModalVisible}
-        onOk={handleOk}
-        onCancel={() => setIsModalVisible(false)}
-      >
-      </Modal>
+      <UserModal
+        visible={isModalVisible}
+        onClose={handleModalClose}
+        onSubmit={handleModalSubmit}
+        userId={selectedUserId}
+      />
     </div>
   );
 };

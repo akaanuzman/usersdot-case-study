@@ -12,7 +12,7 @@ import TableActionButtonWithTooltip from '../button/TableActionButtonWithTooltip
  *   <TableActions onEdit={() => {}} />
  * )
  */
-const TableActions = ({ onEdit }) => {
+const TableActions = ({ onEdit, onDelete }) => {
     return (
         <Space size="middle">
             <TableActionButtonWithTooltip
@@ -25,7 +25,7 @@ const TableActions = ({ onEdit }) => {
                 title="Delete"
                 buttonType="primary"
                 icon={<DeleteOutlined />}
-                onClick={() => { }}
+                onClick={onDelete}
                 danger
             />
         </Space>

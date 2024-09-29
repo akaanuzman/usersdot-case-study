@@ -1,5 +1,5 @@
-import React, { useEffect } from 'react';
-import { Modal, Form, Input, Select } from 'antd';
+import React, { useEffect, useState } from 'react';
+import { Modal, Form, Input, Select, message, InputNumber } from 'antd';
 
 const { Option } = Select;
 
@@ -30,11 +30,29 @@ const UserModal = ({ visible, onClose, onSubmit, userId }) => {
     const handleOk = async () => {
         try {
             const values = await form.validateFields();
-            onSubmit(values);
+            if (!userId && values) {
+                const response = await fetch('http://localhost:3001/users/save', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(values),
+                });
+                if (!response.ok) {
+                    throw new Error(`Error saving user: ${response.statusText}`);
+                }
+                message.success('User saved successfully!');
+            } else {
+                onSubmit(values);
+            }
             onClose();
             form.resetFields();
-        } catch (info) {
-            console.log('Validate Failed:', info);
+        } catch (error) {
+            if (error.name === 'Error') {
+                message.error(error.message);
+            } else {
+                message.error('Please fill in the required fields correctly.');
+            }
         }
     };
 
@@ -111,7 +129,7 @@ const UserModal = ({ visible, onClose, onSubmit, userId }) => {
                         { type: 'number', message: 'Age must be a number!' }
                     ]}
                 >
-                    <Input />
+                    <InputNumber />
                 </Form.Item>
                 <Form.Item
                     name="country"

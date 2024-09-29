@@ -30,21 +30,21 @@ const UserModal = ({ visible, onClose, onSubmit, userId }) => {
     const handleOk = async () => {
         try {
             const values = await form.validateFields();
-            if (!userId && values) {
-                const response = await fetch('http://localhost:3001/users/save', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(values),
-                });
-                if (!response.ok) {
-                    throw new Error(`Error saving user: ${response.statusText}`);
-                }
-                message.success('User saved successfully!');
-            } else {
-                onSubmit(values);
+            const url = userId ? `http://localhost:3001/users/update` : 'http://localhost:3001/users/save';
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(userId ? { ...values, id: userId } : values),
+            });
+
+            if (!response.ok) {
+                throw new Error(`Error saving user: ${response.statusText}`);
             }
+
+            message.success('User saved successfully!');
+            onSubmit(values);
             onClose();
             form.resetFields();
         } catch (error) {

@@ -54,7 +54,7 @@ export class DatabaseService implements OnModuleInit {
                 age INT,
                 country VARCHAR(100),
                 district VARCHAR(100),
-                role VARCHAR(10),
+                role VARCHAR(10) NOT NULL DEFAULT 'user',
                 createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
             )

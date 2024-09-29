@@ -1,17 +1,19 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Table, Empty } from 'antd';
+import { Table, Empty, message } from 'antd';
 import UserModel from './models/user.model';
 import TableFooter from './components/footer/TableFooter';
 import TableHeader from './components/header/TableHeader';
 import TableActions from './components/actions/TableActions';
 import UserRoleTag from './components/tag/UserRoleTag';
 import UserModal from './components/modal/UserModal';
+import DeleteUserModal from './components/modal/DeleteUserModal';
 
 const App = () => {
   const [users, setUsers] = useState([]);
   const [totalCount, setTotalCount] = useState(0);
   const [searchTerm, setSearchTerm] = useState('');
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [selectedUserId, setSelectedUserId] = useState(null);
@@ -78,6 +80,34 @@ const App = () => {
     setCurrentPage(1);
   };
 
+  const openDeleteModal = (userId) => {
+    setSelectedUserId(userId);
+    setIsDeleteModalVisible(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    try {
+      const response = await fetch(`http://localhost:3001/users/${selectedUserId}`, {
+        method: 'DELETE',
+      });
+      if (!response.ok) {
+        throw new Error(`status: ${response.status}`);
+      }
+      message.success('User deleted successfully');
+      setIsDeleteModalVisible(false);
+      setSelectedUserId(null);
+      await fetchUsers();
+    } catch (error) {
+      message.error('Failed to delete user');
+      console.error("Delete error:", error);
+    }
+  };
+
+  const handleDeleteCancel = () => {
+    setIsDeleteModalVisible(false);
+    setSelectedUserId(null);
+  };
+
   return (
     <div style={{ padding: '20px' }}>
       <Table
@@ -105,7 +135,12 @@ const App = () => {
             title: 'Actions',
             dataIndex: 'id',
             key: 'id',
-            render: (id) => (<TableActions onEdit={() => openModal(id)} />),
+            render: (id) => (
+              <TableActions
+                onEdit={() => openModal(id)}
+                onDelete={() => openDeleteModal(id)}
+              />
+            ),
           },
         ]}
         bordered
@@ -135,6 +170,11 @@ const App = () => {
         onClose={handleModalClose}
         onSubmit={handleModalSubmit}
         userId={selectedUserId}
+      />
+      <DeleteUserModal
+        visible={isDeleteModalVisible}
+        onConfirm={handleDeleteConfirm}
+        onCancel={handleDeleteCancel}
       />
     </div>
   );

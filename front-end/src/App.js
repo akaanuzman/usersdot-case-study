@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Table, Input, Button, Modal, Tooltip, Tag, Row, Col, Typography, Select, Empty } from 'antd';
-import { EditOutlined, DeleteOutlined, UserAddOutlined, SearchOutlined, UserOutlined } from '@ant-design/icons';
+import { Table, Modal, Empty } from 'antd';
 import UserModel from './models/user.model';
-
-const { Option } = Select;
-const { Search } = Input;
+import TableFooter from './components/footer/TableFooter';
+import TableHeader from './components/header/TableHeader';
+import TableActions from './components/actions/TableActions';
+import UserRoleTag from './components/tag/UserRoleTag';
 
 const App = () => {
   const [users, setUsers] = useState([]);
@@ -53,6 +53,7 @@ const App = () => {
 
   const handleSearch = async (value) => {
     setSearchTerm(value);
+    setCurrentPage(1);
     await fetchUsers();
   };
 
@@ -79,7 +80,7 @@ const App = () => {
         dataSource={users}
         locale={{
           emptyText: (
-            <Empty description="No users found"/>
+            <Empty description="No users found" />
           ),
         }}
         columns={[
@@ -94,35 +95,13 @@ const App = () => {
             title: 'Role',
             dataIndex: 'role',
             key: 'role',
-            render: (role) => (
-              <Tag color={role === 'admin' ? 'red' : 'green'}>{role.toUpperCase()}</Tag>
-            )
+            render: (role) => (<UserRoleTag role={role} />),
           },
           {
             title: 'Actions',
-            dataIndex: '',
-            key: 'x',
-            render: (_, record) => (
-              <div style={{ display: 'flex', gap: '8px' }}>
-                <Tooltip title="Edit">
-                  <Button
-                    type="primary"
-                    shape="circle"
-                    icon={<EditOutlined />}
-                    onClick={() => { }}
-                  />
-                </Tooltip>
-                <Tooltip title="Delete">
-                  <Button
-                    type="primary"
-                    danger
-                    shape="circle"
-                    icon={<DeleteOutlined />}
-                    onClick={() => { }}
-                  />
-                </Tooltip>
-              </div>
-            ),
+            dataIndex: 'id',
+            key: 'id',
+            render: (_) => (<TableActions />),
           },
         ]}
         bordered
@@ -133,53 +112,18 @@ const App = () => {
           onChange: (page) => setCurrentPage(page),
         }}
         onChange={handleTableChange}
-        title={() =>
-          <div>
-            <Col>
-              <Typography.Title>Usersdot Study Case</Typography.Title>
-              <Row justify="space-between" align="middle">
-                <Col>
-                  <Search
-                    addonBefore={<SearchOutlined />}
-                    placeholder="Search User..."
-                    enterButton="Search"
-                    size="large"
-                    onSearch={(value) => handleSearch(value)}
-                  />
-                </Col>
-                <Col>
-                  <Button
-                    type="primary"
-                    icon={<UserAddOutlined />}
-                    onClick={() => openModal(null)}>
-                    Add User
-                  </Button>
-                </Col>
-              </Row>
-            </Col>
-          </div>}
+        title={() => (
+          <TableHeader
+            handleSearch={handleSearch}
+            openModal={openModal}
+          />
+        )}
         footer={() => (
-          <Row justify="space-between" align="middle">
-            <Col>
-              <Typography.Text> Showing {users.length} of {totalCount} entries</Typography.Text>
-            </Col>
-            <Col>
-              <Select
-                showSearch
-                defaultValue={10}
-                onChange={handlePageSizeChange}
-              >
-                <Option value={2}>2 / page</Option>
-                <Option value={5}>5 / page</Option>
-                <Option value={10}>10 / page</Option>
-                <Option value={15}>15 / page</Option>
-                <Option value={20}>20 / page</Option>
-                <Option value={25}>25 / page</Option>
-                <Option value={50}>50 / page</Option>
-                <Option value={100}>100 / page</Option>
-              </Select>
-            </Col>
-          </Row>
+          <TableFooter
+            usersLength={users.length}
+            totalCount={totalCount}
+            handlePageSizeChange={handlePageSizeChange}
+          />
         )}
       />
       <Modal

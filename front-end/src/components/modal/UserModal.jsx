@@ -1,36 +1,44 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { Modal, Form, Input, Select, message, InputNumber, Spin } from 'antd';
+import ErrorResult from '../error/ErrorResult';
 
 const { Option } = Select;
 
 const UserModal = ({ visible, onClose, onSubmit, userId }) => {
     const [form] = Form.useForm();
     const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(null);
 
-    useEffect(() => {
-        const fetchUserData = async () => {
-            if (userId) {
-                try {
-                    setLoading(true);
-                    const response = await fetch(`http://localhost:3001/users/${userId}`);
-                    if (!response.ok) {
-                        throw new Error(`Error fetching user data: ${response.statusText}`);
-                    }
-                    const data = await response.json();
-                    form.setFieldsValue(data);
-                } catch (error) {
-                    console.error("Fetch error:", error);
-                } finally {
-                    setLoading(false);
-                }
-            } else {
-                form.resetFields();
+    /**
+     * @description - Fetches user data from the API if the userId is provided.
+     * @returns {Promise<void>}
+     */
+    const fetchUserData = useCallback(async () => {
+        if (userId) {
+            try {
+                setLoading(true);
+                const response = await fetch(`http://localhost:3001/users/${userId}`);
+                const data = await response.json();
+                form.setFieldsValue(data);
+            } catch (error) {
+                console.error("Fetch error:", error);
+                setError(error);
+            } finally {
+                setLoading(false);
             }
-        };
-
-        fetchUserData();
+        } else {
+            form.resetFields();
+        }
     }, [userId, form]);
 
+    useEffect(() => {
+        fetchUserData();
+    }, [fetchUserData]);
+
+    /**
+     * @description - Handles the form submission.
+     * @returns {Promise<void>}
+     */
     const handleOk = async () => {
         try {
             setLoading(true);
@@ -40,6 +48,7 @@ const UserModal = ({ visible, onClose, onSubmit, userId }) => {
             setLoading(false);
         } catch (error) {
             setLoading(false);
+            setError(error);
             if (error.name === 'Error') {
                 message.error(error.message);
             } else {
@@ -48,10 +57,18 @@ const UserModal = ({ visible, onClose, onSubmit, userId }) => {
         }
     };
 
+    /**
+     * @description - Closes the modal and resets the form.
+     * @returns {void}
+     */
     const handleCancel = () => {
         onClose();
         form.resetFields();
     };
+
+    // If there is an error, display the error message.
+    if (error) return <ErrorResult error={error} />;
+
 
     return (
         <Modal

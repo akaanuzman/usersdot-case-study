@@ -1,4 +1,4 @@
-import React from 'react'
+import React from 'react';
 import { Input } from 'antd';
 import { SearchOutlined } from '@ant-design/icons';
 
@@ -10,7 +10,8 @@ const { Search } = Input;
  * @param {Function} props.handleSearch
  * @returns - SearchInput component
  */
-const SearchInput = ({handleSearch}) => {
+const SearchInput = ({ handleSearch }) => {
+
     return (
         <Search
             addonBefore={<SearchOutlined />}
@@ -19,7 +20,7 @@ const SearchInput = ({handleSearch}) => {
             size="large"
             onSearch={(value) => handleSearch(value)}
         />
-    )
-}
+    );
+};
 
-export default SearchInput
+export default SearchInput;

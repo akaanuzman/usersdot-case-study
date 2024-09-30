@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Table, Empty, message } from 'antd';
+import { Table, Empty, message, Spin } from 'antd';
 import UserModel from './models/user.model';
 import TableFooter from './components/footer/TableFooter';
 import TableHeader from './components/header/TableHeader';
@@ -17,6 +17,7 @@ const App = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [selectedUserId, setSelectedUserId] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   const fetchUsers = useCallback(async () => {
     try {
@@ -41,8 +42,10 @@ const App = () => {
       ));
       setUsers(users);
       setTotalCount(result.totalCount);
+      setLoading(false);
     } catch (error) {
       console.error("Fetch error:", error);
+      setLoading(false);
     }
   }, [currentPage, pageSize, searchTerm]);
 
@@ -51,9 +54,11 @@ const App = () => {
   }, [fetchUsers]);
 
   const handleSearch = async (value) => {
+    setLoading(true);
     setSearchTerm(value);
     setCurrentPage(1);
     await fetchUsers();
+    setLoading(false);
   };
 
   const openModal = (userId = null) => {
@@ -65,7 +70,6 @@ const App = () => {
     setIsModalVisible(false);
     setSelectedUserId(null);
   };
-
 
   const handleModalSubmit = async (values) => {
     try {
@@ -83,7 +87,7 @@ const App = () => {
       }
 
       message.success('User saved successfully!');
-      await fetchUsers(); // Tabloyu güncellemek için kullanıcıları yeniden fetch et
+      await fetchUsers();
       setIsModalVisible(false);
       setSelectedUserId(null);
     } catch (error) {
@@ -131,72 +135,76 @@ const App = () => {
 
   return (
     <div style={{ padding: '20px' }}>
-      <Table
-        dataSource={users}
-        locale={{
-          emptyText: (
-            <Empty description="No users found" />
-          ),
-        }}
-        columns={[
-          { title: 'Name', dataIndex: 'name', key: 'name' },
-          { title: 'Surname', dataIndex: 'surname', key: 'surname' },
-          { title: 'E-Mail', dataIndex: 'email', key: 'email' },
-          { title: 'Phone', dataIndex: 'phone', key: 'phone' },
-          { title: 'Age', dataIndex: 'age', key: 'age' },
-          { title: 'Country', dataIndex: 'country', key: 'country' },
-          { title: 'District', dataIndex: 'district', key: 'district' },
-          {
-            title: 'Role',
-            dataIndex: 'role',
-            key: 'role',
-            render: (role) => (<UserRoleTag role={role} />),
-          },
-          {
-            title: 'Actions',
-            dataIndex: 'id',
-            key: 'id',
-            render: (id) => (
-              <TableActions
-                onEdit={() => openModal(id)}
-                onDelete={() => openDeleteModal(id)}
-              />
+
+      <Spin tip="Loading users' data...." size='large' spinning={loading}>
+        <Table
+          dataSource={users}
+          locale={{
+            emptyText: (
+              <Empty description="No users found" />
             ),
-          },
-        ]}
-        bordered
-        pagination={{
-          current: currentPage,
-          total: totalCount,
-          pageSize: pageSize,
-          onChange: (page) => setCurrentPage(page),
-        }}
-        onChange={handleTableChange}
-        title={() => (
-          <TableHeader
-            handleSearch={handleSearch}
-            openModal={() => openModal()}
-          />
-        )}
-        footer={() => (
-          <TableFooter
-            usersLength={users.length}
-            totalCount={totalCount}
-            handlePageSizeChange={handlePageSizeChange}
-          />
-        )}
-      />
-      <UserModal
-        visible={isModalVisible}
-        onClose={handleModalClose}
-        onSubmit={handleModalSubmit}
-        userId={selectedUserId}
-      />
-      <DeleteUserModal
-        visible={isDeleteModalVisible}
-        onConfirm={handleDeleteConfirm}
-        onCancel={handleDeleteCancel}
-      />
+          }}
+          columns={[
+            { title: 'Name', dataIndex: 'name', key: 'name' },
+            { title: 'Surname', dataIndex: 'surname', key: 'surname' },
+            { title: 'E-Mail', dataIndex: 'email', key: 'email' },
+            { title: 'Phone', dataIndex: 'phone', key: 'phone' },
+            { title: 'Age', dataIndex: 'age', key: 'age' },
+            { title: 'Country', dataIndex: 'country', key: 'country' },
+            { title: 'District', dataIndex: 'district', key: 'district' },
+            {
+              title: 'Role',
+              dataIndex: 'role',
+              key: 'role',
+              render: (role) => (<UserRoleTag role={role} />),
+            },
+            {
+              title: 'Actions',
+              dataIndex: 'id',
+              key: 'id',
+              render: (id) => (
+                <TableActions
+                  onEdit={() => openModal(id)}
+                  onDelete={() => openDeleteModal(id)}
+                />
+              ),
+            },
+          ]}
+          bordered
+          pagination={{
+            current: currentPage,
+            total: totalCount,
+            pageSize: pageSize,
+            onChange: (page) => setCurrentPage(page),
+          }}
+          onChange={handleTableChange}
+          title={() => (
+            <TableHeader
+              handleSearch={handleSearch}
+              openModal={() => openModal()}
+            />
+          )}
+          footer={() => (
+            <TableFooter
+              usersLength={users.length}
+              totalCount={totalCount}
+              handlePageSizeChange={handlePageSizeChange}
+            />
+          )}
+        />
+
+        <UserModal
+          visible={isModalVisible}
+          onClose={handleModalClose}
+          onSubmit={handleModalSubmit}
+          userId={selectedUserId}
+        />
+        <DeleteUserModal
+          visible={isDeleteModalVisible}
+          onConfirm={handleDeleteConfirm}
+          onCancel={handleDeleteCancel}
+        />
+      </Spin>
     </div>
   );
 };

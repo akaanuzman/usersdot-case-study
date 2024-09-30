@@ -1,85 +1,215 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+## Installation
+1. **Install Dependencies**
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+    Navigate to the `back-end` directory and install the required dependencies:
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+    ```sh
+    cd back-end && npm i
+    ```
 
-## Description
+2. **Setup MySQL**
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+    You can create .env file root directory and create configuration variables.
 
-## Project setup
+    **Create .env file root directory:**
 
-```bash
-$ npm install
+    ```sh
+    DB_HOST=<YOUR_HOST>
+    DB_PORT=<YOUR_PORT>
+    DB_USER=<YOUR_USER>
+    DB_PASSWORD=<YOUR_PASSWORD>
+    DB_NAME=<YOUR_DB_NAME>
+    
+    FRONTEND_URL=<YOUR_FRONTEND_URL
+    PORT=<YOUR_BACK_END_PORT>
+    ```
+3. **Run the Application**
+
+    To run the application, use the following command:
+
+    ```sh
+    npm run start
+    ```
+
+   - The back-end server will be available at `http://localhost:<YOUR_PORT_IN_ENV_FILE>`.
+   - The MySQL server will be available at `http://localhost:<YOUR_DB_PORT_IN_ENV_FILE>`.
+  
+
+## Dependencies
+
+```
+{
+    "bcrypt": "^5.1.1",
+    "class-validator": "^0.14.1",
+    "mysql2": "^3.11.3",
+}
 ```
 
-## Compile and run the project
+## User Table Schemas
+<img width="896" alt="db scheme" src="https://github.com/user-attachments/assets/3327a111-e88f-4053-99ca-1eb1fb003dc1">
 
-```bash
-# development
-$ npm run start
+## API Endpoints
 
-# watch mode
-$ npm run start:dev
+### User Endpoints
 
-# production mode
-$ npm run start:prod
-```
+- **Add User**
 
-## Run tests
+    - **URL**: `/users/save`
+    - **Method**: `POST`
+    - **Headers**: `'Content-Type': 'application/json'`
+    - **Body**:
 
-```bash
-# unit tests
-$ npm run test
+      ```json
+      {
+          "name": "John",
+          "surname": "Doe",
+          "email": "johndoe@example.com",
+          "password": "verysecretpassword123",
+          "phone": "+905555555555",
+          "age": 28,
+          "country": "Turkey",
+          "district": "İstanbul",
+          "role": "user"
+      }
+      ```
 
-# e2e tests
-$ npm run test:e2e
+    - **Response**:
 
-# test coverage
-$ npm run test:cov
-```
+      ```json
+      {
+          "id": "user_id",
+          "name": "John",
+          "surname": "Doe",
+          "email": "johndoe@example.com",
+          "password": "$2b$10$dkcsMOk2rSvgoyuBqb5dEuYTGeBMLlDKbqp3Mt1kQ5SzOeKcBNLwK",
+          "phone": "+905555555555",
+          "age": 28,
+          "country": "Turkey",
+          "district": "İstanbul",
+          "role": "user"
+          "createdAt": "2024-09-30T02:12:05.000Z",
+          "updatedAt": "2024-09-30T02:12:05.000Z"
+      }
+      ```
 
-## Resources
+- **Update User**
 
-Check out a few resources that may come in handy when working with NestJS:
+    - **URL**: `/users/update`
+    - **Method**: `POST`
+    - **Headers**: `'Content-Type': 'application/json'`
+    - **Body**:
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+      ```json
+      {
+          "id": "user_id",
+          "name": "Jay Jay",
+          "surname": "Doe",
+          "email": "johndoe@example.com",
+          "password": "$2b$10$dkcsMOk2rSvgoyuBqb5dEuYTGeBMLlDKbqp3Mt1kQ5SzOeKcBNLwK",
+          "phone": "+905555555555",
+          "age": 12,
+          "country": "USA",
+          "district": "Cupertino",
+          "role": "user"
+      }
+      ```
 
-## Support
+    - **Response**:
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+      ```json
+      {
+          "id": "user_id",
+          "name": "Jay Jay",
+          "surname": "Doe",
+          "email": "johndoe@example.com",
+          "password": "$2b$10$dkcsMOk2rSvgoyuBqb5dEuYTGeBMLlDKbqp3Mt1kQ5SzOeKcBNLwK",
+          "phone": "+905555555555",
+          "age": 12,
+          "country": "USA",
+          "district": "Cupertino",
+          "role": "user"
+          "createdAt": "2024-09-30T02:12:05.000Z",
+          "updatedAt": "2024-09-30T02:14:41.000Z"
+      }
+      ```
 
-## Stay in touch
+- **Delete User**
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+    - **URL**: `/users/:id`
+    - **Method**: `DELETE`
+    - **Response**:
 
-## License
+      ```json
+      {
+          "message": "User deleted successfully"
+      }
+      ```
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+- **Get All Users**
+
+    - **URL**: `/users?page=1&pageSize=10&search=doe`
+    - **Method**: `GET`
+    - **Description**: `All 3 query parameters have default values. 1 for page, 10 for pageSize and ''' for search are empty strings. Optionally any of page, pageSize and search param can be sent.`
+    - **Response**:
+
+      ```json
+      {
+          "users": [
+              {
+                  "id": 1,
+                  "name": "John",
+                  "surname": "Doe",
+                  "email": "john.doe@example.com",
+                  "password": "$2b$10$Ii8JnJduP28udL5W8/wvuuvB9NnqD2RihjdU1gYfGmTGsdZvC6gGC",
+                  "phone": "1234567890",
+                  "age": 30,
+                  "country": "USA",
+                  "district": "District 1",
+                  "role": "user",
+                  "createdAt": "2024-09-30T02:19:51.000Z",
+                  "updatedAt": "2024-09-30T02:19:51.000Z"
+              },
+              {
+                  "id": 2,
+                  "name": "Jane",
+                  "surname": "Doe",
+                  "email": "jane.doe@example.com",
+                  "password": "$2b$10$PG..GbWhRcrsAOOETA0GR.5DiPjpQTs8sIPVM13EOzXlupNkLVqtK",
+                  "phone": "1234567890",
+                  "age": 25,
+                  "country": "USA",
+                  "district": "District 2",
+                  "role": "user",
+                  "createdAt": "2024-09-30T02:19:51.000Z",
+                  "updatedAt": "2024-09-30T02:19:51.000Z"
+              }
+          ],
+          "totalPages": 1,
+          "totalCount": 2
+      }
+      ```
+
+- **Get User by ID**
+
+    - **URL**: `/users/:id`
+    - **Method**: `GET`
+    - **Response**:
+
+      ```json
+      {
+          "id": 1,
+          "name": "John",
+          "surname": "Doe",
+          "email": "john.doe@example.com",
+          "password": "$2b$10$Ii8JnJduP28udL5W8/wvuuvB9NnqD2RihjdU1gYfGmTGsdZvC6gGC",
+          "phone": "1234567890",
+          "age": 30,
+          "country": "USA",
+          "district": "District 1",
+          "role": "user",
+          "createdAt": "2024-09-30T02:19:51.000Z",
+          "updatedAt": "2024-09-30T02:19:51.000Z"
+      }
+      ```
+
+    

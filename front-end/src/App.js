@@ -27,7 +27,7 @@ const App = () => {
    */
   const fetchUsers = useCallback(async () => {
     try {
-      const response = await fetch(`http://localhost:3001/user?page=${currentPage}&pageSize=${pageSize}&search=${searchTerm}`);
+      const response = await fetch(`http://localhost:3001/users?page=${currentPage}&pageSize=${pageSize}&search=${searchTerm}`);
       const result = await response.json();
       const users = result.users.map((user) => new UserModel(
         user.id,

@@ -30,22 +30,7 @@ const UserModal = ({ visible, onClose, onSubmit, userId }) => {
     const handleOk = async () => {
         try {
             const values = await form.validateFields();
-            const url = userId ? `http://localhost:3001/users/update` : 'http://localhost:3001/users/save';
-            const response = await fetch(url, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(userId ? { ...values, id: userId } : values),
-            });
-
-            if (!response.ok) {
-                throw new Error(`Error saving user: ${response.statusText}`);
-            }
-
-            message.success('User saved successfully!');
             onSubmit(values);
-            onClose();
             form.resetFields();
         } catch (error) {
             if (error.name === 'Error') {
@@ -89,27 +74,30 @@ const UserModal = ({ visible, onClose, onSubmit, userId }) => {
                 >
                     <Input />
                 </Form.Item>
-                <Form.Item
-                    name="email"
-                    label="E-Mail"
-                    rules={[
-                        { required: true, type: 'email', message: 'Please input a valid email!' },
-                        { max: 100, message: 'E-Mail cannot be longer than 100 characters!' }
-                    ]}
-                >
-                    <Input />
-                </Form.Item>
+
                 {!userId && (
-                    <Form.Item
-                        name="password"
-                        label="Password"
-                        rules={[
-                            { required: true, message: 'Please input the password!' },
-                            { max: 100, message: 'Password cannot be longer than 100 characters!' }
-                        ]}
-                    >
-                        <Input.Password />
-                    </Form.Item>
+                    <>
+                        <Form.Item
+                            name="email"
+                            label="E-Mail"
+                            rules={[
+                                { required: true, type: 'email', message: 'Please input a valid email!' },
+                                { max: 100, message: 'E-Mail cannot be longer than 100 characters!' }
+                            ]}
+                        >
+                            <Input />
+                        </Form.Item>
+                        <Form.Item
+                            name="password"
+                            label="Password"
+                            rules={[
+                                { required: true, message: 'Please input the password!' },
+                                { max: 100, message: 'Password cannot be longer than 100 characters!' }
+                            ]}
+                        >
+                            <Input.Password />
+                        </Form.Item>
+                    </>
                 )}
                 <Form.Item
                     name="phone"

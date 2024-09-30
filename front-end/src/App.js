@@ -66,9 +66,30 @@ const App = () => {
     setSelectedUserId(null);
   };
 
-  const handleModalSubmit = (values) => {
-    console.log('Form values:', values);
-    // Handle form submission logic here
+
+  const handleModalSubmit = async (values) => {
+    try {
+      const url = selectedUserId ? `http://localhost:3001/users/update` : 'http://localhost:3001/users/save';
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(selectedUserId ? { ...values, id: selectedUserId } : values),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Error saving user: ${response.statusText}`);
+      }
+
+      message.success('User saved successfully!');
+      await fetchUsers(); // Tabloyu güncellemek için kullanıcıları yeniden fetch et
+      setIsModalVisible(false);
+      setSelectedUserId(null);
+    } catch (error) {
+      message.error('Failed to save user');
+      console.error("Save error:", error);
+    }
   };
 
   const handleTableChange = (pagination) => {
